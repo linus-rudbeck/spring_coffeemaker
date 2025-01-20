@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: spring_coffeemaker
+  datasource:
+    url: jdbc:mysql://localhost:3306/spring_coffeemaker?createDatabaseIfNotExist=true
+    username: root
+    password: root
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
