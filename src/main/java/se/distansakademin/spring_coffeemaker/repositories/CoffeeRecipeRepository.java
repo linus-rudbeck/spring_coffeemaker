@@ -1,5 +1,6 @@
 package se.distansakademin.spring_coffeemaker.repositories;
 
+import org.springframework.stereotype.Repository;
 import se.distansakademin.spring_coffeemaker.models.CoffeeRecipe;
 import se.distansakademin.spring_coffeemaker.models.Ingredient;
 
@@ -7,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@Repository
 public class CoffeeRecipeRepository {
 
     private List<CoffeeRecipe> recipes;
@@ -37,5 +39,15 @@ public class CoffeeRecipeRepository {
 
     public List<CoffeeRecipe> getAll() {
         return recipes;
+    }
+
+    public CoffeeRecipe getRecipeByName(String name) {
+        for (CoffeeRecipe recipe : recipes){
+            if (recipe.getCoffeeType().equalsIgnoreCase(name)){
+                return recipe;
+            }
+        }
+
+        return null;
     }
 }

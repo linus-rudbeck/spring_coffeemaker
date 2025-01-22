@@ -32,7 +32,6 @@ public class IngredientDataLoaderTest {
         // When we call ingredientDataLoader.run()
         ingredientDataLoader.run();
 
-
         // Then we want it to call repository.deleteAll() once...
         verify(repository, times(1)).deleteAll();
 
