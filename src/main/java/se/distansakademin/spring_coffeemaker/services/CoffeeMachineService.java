@@ -6,6 +6,7 @@ import se.distansakademin.spring_coffeemaker.models.CoffeeRecipe;
 import se.distansakademin.spring_coffeemaker.models.Ingredient;
 import se.distansakademin.spring_coffeemaker.repositories.CoffeeRecipeRepository;
 import se.distansakademin.spring_coffeemaker.repositories.IngredientRepository;
+import se.distansakademin.spring_coffeemaker.util.InvalidRequestException;
 
 import java.util.Map;
 
@@ -18,34 +19,52 @@ public class CoffeeMachineService {
     @Autowired
     IngredientRepository ingredientRepository;
 
-    public String makeOrder(String coffeeType) {
+    public String makeOrder(String coffeeType) throws InvalidRequestException {
 
         CoffeeRecipe recipe = coffeeRecipeRepository.getRecipeByName(coffeeType);
 
-        hasSufficientIngredients(recipe);
+        boolean sufficientIngredients = hasSufficientIngredients(recipe);
+
+        if (!sufficientIngredients) {
+            throw new InvalidRequestException("Insufficient ingredients");
+        }
+
+        updateIngredients(recipe);
 
         return "Order placed for " + coffeeType;
 
     }
 
+    private void updateIngredients(CoffeeRecipe recipe) {
+        Map<String, Integer> recipeIngredients = recipe.getIngredients();
+
+        for (Map.Entry<String, Integer> recipeIngredient : recipeIngredients.entrySet()) {
+            String ingredientName = recipeIngredient.getKey();
+            Integer amountRequired = recipeIngredient.getValue();
+            Ingredient dbIngredient = ingredientRepository.findByName(ingredientName);
+
+            int newQuantity = dbIngredient.getQuantity() - amountRequired;
+            dbIngredient.setQuantity(newQuantity);
+        }
+    }
+
     private boolean hasSufficientIngredients(CoffeeRecipe recipe) {
         Map<String, Integer> recipeIngredients = recipe.getIngredients();
 
-        for (Map.Entry<String, Integer> entry : recipeIngredients.entrySet()) {
-            String ingredientName = entry.getKey();
-            Integer amountRequired = entry.getValue();
+        for (Map.Entry<String, Integer> recipeIngredient : recipeIngredients.entrySet()) {
+            String ingredientName = recipeIngredient.getKey();
+            Integer amountRequired = recipeIngredient.getValue();
             Ingredient dbIngredient = ingredientRepository.findByName(ingredientName);
 
-            // Kolla om dbIngredient
+            if (dbIngredient == null) {
+                return false;
+            }
 
             int amountAvailable = dbIngredient.getQuantity();
 
             if (amountAvailable < amountRequired) {
                 return false;
             }
-
-            dbIngredient.setQuantity(dbIngredient.getQuantity() - amountRequired);
-            ingredientRepository.save(dbIngredient);
         }
 
         return true;
