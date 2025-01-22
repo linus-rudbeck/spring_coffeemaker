@@ -88,7 +88,7 @@ public class CoffeeMachineServiceTest {
         verify(coffeeRecipeRepository, times(1)).getRecipeByName("espresso");
 
         // Check that ONLY ONE ingredient is requested
-        verify(ingredientRepository, times(1)).findByName(anyString());
+        verify(ingredientRepository, times(2)).findByName(anyString());
 
         // Check that we DONT (never) update the ingredient
         verify(ingredientRepository, never()).save(any());
@@ -135,7 +135,7 @@ public class CoffeeMachineServiceTest {
 
         verify(coffeeRecipeRepository, times(1)).getRecipeByName("espresso");
 
-        verify(ingredientRepository, times(1)).findByName(anyString());
+        verify(ingredientRepository, times(2)).findByName(anyString());
 
         verify(ingredientRepository, never()).save(any());
     }

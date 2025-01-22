@@ -23,5 +23,6 @@ public class IngredientDataLoader implements CommandLineRunner {
         repository.save(new Ingredient(Ingredient.COFFEE, 10));
         repository.save(new Ingredient(Ingredient.MILK, 10));
         repository.save(new Ingredient(Ingredient.WATER, 10));
+        System.out.println("Reset all ingredients to 10 of each");
     }
 }

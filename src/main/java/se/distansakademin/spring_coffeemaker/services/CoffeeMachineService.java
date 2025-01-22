@@ -8,6 +8,8 @@ import se.distansakademin.spring_coffeemaker.repositories.CoffeeRecipeRepository
 import se.distansakademin.spring_coffeemaker.repositories.IngredientRepository;
 import se.distansakademin.spring_coffeemaker.util.InvalidRequestException;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -19,9 +21,15 @@ public class CoffeeMachineService {
     @Autowired
     IngredientRepository ingredientRepository;
 
+
+    private List<Ingredient> dbIngredients;
+
+
     public String makeOrder(String coffeeType) throws InvalidRequestException {
 
         CoffeeRecipe recipe = coffeeRecipeRepository.getRecipeByName(coffeeType);
+
+        dbIngredients = getAllIngredients(recipe);
 
         boolean sufficientIngredients = hasSufficientIngredients(recipe);
 
@@ -35,26 +43,39 @@ public class CoffeeMachineService {
 
     }
 
+    private List<Ingredient> getAllIngredients(CoffeeRecipe recipe) {
+        List<Ingredient> ingredients = new ArrayList<>();
+
+        recipe.getIngredients().forEach((name, quantityRequired) -> {
+            Ingredient ingredient = ingredientRepository.findByName(name);
+            ingredients.add(ingredient);
+        });
+
+        return ingredients;
+    }
+
     private void updateIngredients(CoffeeRecipe recipe) {
         Map<String, Integer> recipeIngredients = recipe.getIngredients();
 
         for (Map.Entry<String, Integer> recipeIngredient : recipeIngredients.entrySet()) {
             String ingredientName = recipeIngredient.getKey();
             Integer amountRequired = recipeIngredient.getValue();
-            Ingredient dbIngredient = ingredientRepository.findByName(ingredientName);
+            Ingredient dbIngredient = getIngredientByName(ingredientName);
 
             int newQuantity = dbIngredient.getQuantity() - amountRequired;
             dbIngredient.setQuantity(newQuantity);
+
+            ingredientRepository.save(dbIngredient);
         }
     }
 
-    private boolean hasSufficientIngredients(CoffeeRecipe recipe) {
+    private boolean hasSufficientIngredients(CoffeeRecipe recipe){
         Map<String, Integer> recipeIngredients = recipe.getIngredients();
 
         for (Map.Entry<String, Integer> recipeIngredient : recipeIngredients.entrySet()) {
             String ingredientName = recipeIngredient.getKey();
             Integer amountRequired = recipeIngredient.getValue();
-            Ingredient dbIngredient = ingredientRepository.findByName(ingredientName);
+            Ingredient dbIngredient = getIngredientByName(ingredientName);
 
             if (dbIngredient == null) {
                 return false;
@@ -68,5 +89,21 @@ public class CoffeeMachineService {
         }
 
         return true;
+    }
+
+    private Ingredient getIngredientByName(String ingredientName) {
+        for (Ingredient ingredient : dbIngredients){
+            if(ingredient == null){
+                continue;
+            }
+
+            String currentIngredientName = ingredient.getName();
+
+            if (currentIngredientName.equalsIgnoreCase(ingredientName)){
+                return ingredient;
+            }
+        }
+
+        return null;
     }
 }
