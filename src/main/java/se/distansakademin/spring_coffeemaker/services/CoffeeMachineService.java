@@ -29,6 +29,10 @@ public class CoffeeMachineService {
 
         CoffeeRecipe recipe = coffeeRecipeRepository.getRecipeByName(coffeeType);
 
+        if(recipe == null){
+            throw new InvalidRequestException("Recipe does not exist: " + coffeeType);
+        }
+
         dbIngredients = getAllIngredients(recipe);
 
         boolean sufficientIngredients = hasSufficientIngredients(recipe);
