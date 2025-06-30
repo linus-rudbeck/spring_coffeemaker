@@ -11,3 +11,10 @@ Feature: Managing ingredients
     Given We create an ingredient without name and quantity
     When We set that ingredients name to "Coffee" and quantity to 10
     Then That ingredients name is "Coffee" and quantity is 10
+
+  # Testing setters and getters
+  Scenario: Setting x
+    Given x
+    When y
+    Then z
+
